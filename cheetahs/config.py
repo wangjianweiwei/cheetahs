@@ -108,7 +108,7 @@ class Config(object):
 
     @property
     def address(self):
-        bind = self.settings['bind'].get
+        bind = self.settings['bind'].get()
         return [util.parse_address(util.bytes_to_str(n)) for n in bind]
 
     @property
@@ -125,7 +125,7 @@ class Config(object):
         is_sync = uri.endswith('SyncWorker') or uri == 'sync'
 
         if is_sync and self.threads > 1:
-            uri = "gunicorn.workers.gthread.ThreadWorker"
+            uri = "cheetahs.workers.gthread.ThreadWorker"
 
         worker_class = util.load_class(uri)
         if hasattr(worker_class, "setup"):
@@ -153,9 +153,9 @@ class Config(object):
 
         if uri == LoggerClass.default:
             if 'statsd_host' in self.settings and self.settings['statsd_host'].value is not None:
-                uri = "gunicorn.instrument.statsd.Statsd"
+                uri = "cheetahs.instrument.statsd.Statsd"
 
-        logger_class = util.load_class(uri, default="gunicorn.glogging.Logger", section="gunicorn.loggers")
+        logger_class = util.load_class(uri, default="cheetahs.glogging.Logger", section="cheetahs.loggers")
 
         if hasattr(logger_class, "install"):
             logger_class.install()
@@ -1350,7 +1350,7 @@ class LoggerClass(Setting):
     cli = ["--logger-class"]
     meta = "STRING"
     validator = validate_class
-    default = "gunicorn.glogging.Logger"
+    default = "cheetahs.glogging.Logger"
     desc = """\
         The logger you want to use to log events in Gunicorn.
 
@@ -1550,7 +1550,7 @@ class DefaultProcName(Setting):
     name = "default_proc_name"
     section = "Process Naming"
     validator = validate_string
-    default = "gunicorn"
+    default = "cheetahs"
     desc = """\
         Internal setting that is adjusted for each type of application.
         """

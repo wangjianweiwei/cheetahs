@@ -128,3 +128,11 @@ def load_class(uri, default="gunicorn.workers.sync.SyncWorker", section="gunicor
             msg = "class uri %r invalid or not found: \n\n[%s]"
             raise RuntimeError(msg % (uri, exc))
         return getattr(mod, klass)
+
+
+def check_is_writeable(path):
+    try:
+        f = open(path, 'a')
+    except IOError as e:
+        raise RuntimeError("Error: '%s' isn't writable [%r]" % (path, e))
+    f.close()

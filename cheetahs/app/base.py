@@ -39,6 +39,15 @@ class BaseApplication(object):
     def init(self, parser, opts, args):
         raise NotImplementedError
 
+    def wsgi(self):
+        if self.callable is None:
+            self.callable = self.load()
+
+        return self.callable
+
+    def load(self):
+        raise NotImplementedError
+
     def run(self):
         Arbiter(self).run()
 
@@ -77,6 +86,9 @@ class Application(BaseApplication):
     def load_config_from_file(self, path):
         pass
 
+    def load(self):
+        raise NotImplementedError
+
     def init(self, parser, opts, args):
         raise NotImplementedError
 
@@ -90,7 +102,19 @@ class WSGIApplication(Application):
         self.cfg.set("default_proc_name", args[0])
         self.app_uri = args[0]
 
+    def load_paste_app(self):
+        pass
+
+    def load_wsgi_app(self):
+        pass
+
+    def load(self):
+        if self.cfg.paste is not None:
+            return self.load_paste_app()
+        else:
+            return self.load_wsgi_app()
+
 
 if __name__ == '__main__':
     sys.argv = ["", "-b", " 0.0.0.0:8000", "web:app"]
-    WSGIApplication()
+    WSGIApplication().run()
